@@ -68,10 +68,20 @@ class ArbolBinario {
 class CalculadoraLogica {
   static List<String> tokenizar(String input) {
     final List<String> tokens = [];
+    String actual = "";
+
+    const List<String> operadores = ["+", "-", "/", "*"];
 
     for (String char in input.split('')) {
-      tokens.add(char);
+      if (operadores.contains(char)) {
+        tokens.add(actual);
+        tokens.add(char);
+        actual = "";
+      } else {
+        actual += char;
+      }
     }
+    tokens.add(actual);
 
     return tokens;
   }
@@ -110,7 +120,7 @@ class CalculadoraLogica {
   static double obtenerResultado(String value) {
     final List<String> tokens = tokenizar(value);
     final List<String> valuePostFijo = convertirPostFija(tokens);
-    print("arbol : ");
+
     final ArbolBinario arbolExpresiones = ArbolBinario();
     arbolExpresiones.insertar(valuePostFijo);
     return arbolExpresiones.evaluarExpresion(arbolExpresiones.raiz!);

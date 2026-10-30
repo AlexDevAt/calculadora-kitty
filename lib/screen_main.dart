@@ -212,6 +212,50 @@ class _BotonCalc extends StatelessWidget {
                   break;
                 }
 
+                if (boton.value == ".") {
+                  const List<String> operadores = ["/", "*", "+", "-"];
+
+                  if (operadores.contains(inputReal[inputReal.length - 1])) {
+                    valueChanged(
+                      inputScreen + "0" + boton.value,
+                      inputReal + "0" + boton.value,
+                    );
+                    break;
+                  }
+
+                  bool tieneOperador = operadores.any(
+                    (operador) => inputReal.contains(operador),
+                  );
+                  //no dejar agregar al final si hay un operador
+                  if (!tieneOperador) {
+                    if (!operadores.contains(inputReal)) {
+                      if (inputReal.contains(".")) {
+                        break;
+                      }
+                    }
+                    valueChanged(
+                      inputScreen + boton.value,
+                      inputReal + boton.value,
+                    );
+                    break;
+                  }
+                  String actual = "";
+                  for (var i = inputReal.length - 1; i >= 0; i--) {
+                    if (operadores.contains(inputReal[i])) {
+                      break;
+                    }
+                    actual += inputReal[i];
+                  }
+                  if (actual.contains(".")) {
+                    break;
+                  } else {
+                    valueChanged(
+                      inputScreen + boton.value,
+                      inputReal + boton.value,
+                    );
+                  }
+                }
+
                 if (boton.value == "=") {
                   print("input a mandar : ${inputReal}");
                   final double res = CalculadoraLogica.obtenerResultado(

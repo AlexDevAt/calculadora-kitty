@@ -74,6 +74,10 @@ class CalculadoraLogica {
 
     for (String char in input.split('')) {
       if (operadores.contains(char)) {
+        if (actual == "") {
+          actual += char;
+          continue;
+        }
         tokens.add(actual);
         tokens.add(char);
         actual = "";

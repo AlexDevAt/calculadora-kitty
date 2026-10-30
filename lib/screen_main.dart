@@ -11,6 +11,7 @@ class ScreenMain extends StatefulWidget {
 
 class _ScreenMainState extends State<ScreenMain> {
   String inputScreen = "0";
+  bool opreacionPreviaHecha = false;
   String inputReal = "0";
 
   @override
@@ -72,12 +73,17 @@ class _ScreenMainState extends State<ScreenMain> {
                   ...botones.map(
                     (btn) => _BotonCalc(
                       boton: btn,
+                      operacionPreviaHecha: opreacionPreviaHecha,
                       inputScreen: inputScreen,
                       inputReal: inputReal,
-                      valueChanged: (valueScreen, valueReal) => (setState(() {
-                        inputScreen = valueScreen;
-                        inputReal = valueReal;
-                      })),
+                      valueChanged:
+                          (valueScreen, valueReal, [opreacionHechaPreviaa]) =>
+                              (setState(() {
+                                inputScreen = valueScreen;
+                                inputReal = valueReal;
+                                opreacionPreviaHecha =
+                                    opreacionHechaPreviaa ?? false;
+                              })),
                     ),
                   ),
                 ],
@@ -96,12 +102,19 @@ class _BotonCalc extends StatelessWidget {
     required this.valueChanged,
     required this.inputScreen,
     required this.inputReal,
+    required this.operacionPreviaHecha,
   });
 
   final Boton boton;
-  final void Function(String valueScreen, String valueReal) valueChanged;
+  final void Function(
+    String valueScreen,
+    String valueReal, [
+    bool? operacionPreviaHecha,
+  ])
+  valueChanged;
   final String inputScreen;
   final String inputReal;
+  final bool operacionPreviaHecha;
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -115,6 +128,10 @@ class _BotonCalc extends StatelessWidget {
                 if (inputReal == "0") {
                   valueChanged(boton.valueScreen, boton.value);
                 } else {
+                  if (operacionPreviaHecha) {
+                    valueChanged(boton.valueScreen, boton.value, false);
+                    break;
+                  }
                   valueChanged(
                     inputScreen + boton.valueScreen,
                     inputReal + boton.value,
@@ -207,6 +224,84 @@ class _BotonCalc extends StatelessWidget {
                 break;
 
               case typeButton.action:
+                if (boton.value == "not") {
+                  if (inputReal == "0") {
+                    break;
+                  }
+                  const List<String> operadores = ["/", "*", "+", "-"];
+
+                  if (operadores.contains(inputReal[inputReal.length - 1])) {
+                    break;
+                  }
+
+                  String nuevoActual = "";
+                  int indiceFinalNumero = 0;
+
+                  for (var i = inputReal.length - 1; i >= 0; i--) {
+                    if (operadores.contains(inputReal[i])) {
+                      if (inputReal[i] == "-") {
+                        if (i == 0 || operadores.contains(inputReal[i - 1])) {
+                          nuevoActual = inputReal[i] + nuevoActual;
+                          indiceFinalNumero = i;
+                        } else {
+                          indiceFinalNumero = i + 1;
+                        }
+                        break;
+                      }
+                      indiceFinalNumero = i + 1;
+                      break;
+                    }
+                    nuevoActual = inputReal[i] + nuevoActual;
+                  }
+                  if (!nuevoActual.contains("-")) {
+                    if (!nuevoActual.contains("-")) {
+                      // Si el carácter anterior al número es una resta,
+                      // convertirla en suma.
+                      if (indiceFinalNumero > 0 &&
+                          inputReal[indiceFinalNumero - 1] == "-") {
+                        String nuevoReal =
+                            inputReal.substring(0, indiceFinalNumero - 1) +
+                            "+" +
+                            nuevoActual;
+
+                        String nuevoScreen =
+                            inputScreen.substring(0, indiceFinalNumero - 1) +
+                            "+" +
+                            nuevoActual;
+
+                        valueChanged(nuevoScreen, nuevoReal);
+                        break;
+                      }
+
+                      String nuevoScreen =
+                          inputScreen.substring(0, indiceFinalNumero) +
+                          "(-$nuevoActual)";
+
+                      String nuevoReal =
+                          inputReal.substring(0, indiceFinalNumero) +
+                          "-$nuevoActual";
+
+                      valueChanged(nuevoScreen, nuevoReal);
+                      break;
+                    }
+                  }
+                  if (nuevoActual.contains("-")) {
+                    String nuevoReal =
+                        inputReal.substring(0, indiceFinalNumero) +
+                        inputReal.substring(indiceFinalNumero + 1);
+
+                    String nuevoScreen =
+                        inputScreen.substring(
+                          0,
+                          inputScreen.length - nuevoActual.length - 2,
+                        ) +
+                        nuevoActual.substring(1);
+
+                    valueChanged(nuevoScreen, nuevoReal);
+                    break;
+                  }
+                }
+
                 if (boton.value == "reset") {
                   valueChanged("0", "0");
                   break;
@@ -261,7 +356,8 @@ class _BotonCalc extends StatelessWidget {
                   final double res = CalculadoraLogica.obtenerResultado(
                     inputReal,
                   );
-                  valueChanged(res.toString(), res.toString());
+                  valueChanged(res.toString(), res.toString(), true);
+
                   break;
                 }
 

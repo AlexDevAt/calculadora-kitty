@@ -123,7 +123,7 @@ final List<Boton> botones = [
     valueScreen: '+/-',
     color: colorbotonNumber,
     type: typeButton.action,
-    value: "+/-",
+    value: "not",
   ),
   Boton(
     valueScreen: '0',

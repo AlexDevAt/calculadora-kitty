@@ -140,7 +140,7 @@ final List<Boton> botones = [
   Boton(
     valueScreen: '=',
     color: colorbotonOp,
-    type: typeButton.equal,
+    type: typeButton.action,
     value: "=",
   ),
 ];

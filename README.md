@@ -18,12 +18,15 @@ samples, guidance on mobile development, and a full API reference.
 
 
 
+si el ultimo operador es igual al que se quiere agregar = no se hace nada, ✔️
 
-si se quiere agregar - y el ultimo operador es  / o * = se concatena
+si se quiere agregar - y el ultimo operador es  / o * = se concatena  ✔️
 
-Si se quiere alegrar - y el ultimo operador es  + = se cambia 
+Si se quiere alegrar - y el ultimo operador es  + = se cambia ✔️
 
-Si el ultimo operador es [ / , *, + ] y se quiere agregar uno igual a esos = se cambia 
+Si el ultimo operador es [ / , *, + ] y se quiere agregar uno igual a esos = se cambia ✔️
 
-Si la ultima combinación es un operador mas el operador -, y se agrega otro operador  diferente a 
+Si la ultima combinación es un operador mas el operador -, y se agrega otro operador  diferente a ✔️
 -  = se cambia todos los operadores por el nuevo operador
+
+si es un 0 y se agrega ee "-" = se cambia por el "-"✔️

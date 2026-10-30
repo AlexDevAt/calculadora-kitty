@@ -1,4 +1,5 @@
 import 'package:calculadora_kitty/botones.dart';
+import 'package:calculadora_kitty/calculadora_logica.dart';
 import 'package:flutter/material.dart';
 
 class ScreenMain extends StatefulWidget {
@@ -76,8 +77,6 @@ class _ScreenMainState extends State<ScreenMain> {
                       valueChanged: (valueScreen, valueReal) => (setState(() {
                         inputScreen = valueScreen;
                         inputReal = valueReal;
-                        print(inputReal);
-                        print(inputScreen);
                       })),
                     ),
                   ),
@@ -118,15 +117,12 @@ class _BotonCalc extends StatelessWidget {
                 } else {
                   valueChanged(
                     inputScreen + boton.valueScreen,
-                    boton.value + inputReal,
+                    inputReal + boton.value,
                   );
                 }
                 break;
               case typeButton.operator:
                 final List<String> operadores = ["/", "*", "+"];
-
-                print("hola ${inputReal}");
-                print("hola ${boton.value}");
 
                 if (inputReal == "0" && boton.value == "-") {
                   valueChanged("-", "-");
@@ -144,15 +140,8 @@ class _BotonCalc extends StatelessWidget {
 
                 final String lastChar = inputReal[inputReal.length - 1];
                 if (inputReal.length > 2) {
-                  print("penultimo : ${inputReal[inputReal.length - 2]}");
-
-                  print("ultimo : ${lastChar}");
-
                   if (operadores.contains(inputReal[inputReal.length - 2]) &&
                       lastChar == "-") {
-                    print(
-                      "desde aqui ${inputReal.substring(0, inputReal.length - 2)}",
-                    );
                     valueChanged(
                       inputScreen.substring(0, inputScreen.length - 2) +
                           boton.valueScreen,
@@ -220,6 +209,15 @@ class _BotonCalc extends StatelessWidget {
               case typeButton.action:
                 if (boton.value == "reset") {
                   valueChanged("0", "0");
+                  break;
+                }
+
+                if (boton.value == "=") {
+                  print("input a mandar : ${inputReal}");
+                  final double res = CalculadoraLogica.obtenerResultado(
+                    inputReal,
+                  );
+                  valueChanged(res.toString(), res.toString());
                   break;
                 }
 

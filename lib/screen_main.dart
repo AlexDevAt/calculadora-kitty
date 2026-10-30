@@ -9,6 +9,9 @@ class ScreenMain extends StatefulWidget {
 }
 
 class _ScreenMainState extends State<ScreenMain> {
+  String inputScreen = "0";
+  String inputReal = "0";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +50,7 @@ class _ScreenMainState extends State<ScreenMain> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      "50",
+                      inputScreen,
                       style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.w700,
@@ -68,6 +71,14 @@ class _ScreenMainState extends State<ScreenMain> {
                   ...botones.map(
                     (btn) => _BotonCalc(
                       boton: btn,
+                      inputScreen: inputScreen,
+                      inputReal: inputReal,
+                      valueChanged: (valueScreen, valueReal) => (setState(() {
+                        inputScreen = valueScreen;
+                        inputReal = valueReal;
+                        print(inputReal);
+                        print(inputScreen);
+                      })),
                     ),
                   ),
                 ],
@@ -81,10 +92,17 @@ class _ScreenMainState extends State<ScreenMain> {
 }
 
 class _BotonCalc extends StatelessWidget {
-  const _BotonCalc({required this.boton});
+  const _BotonCalc({
+    required this.boton,
+    required this.valueChanged,
+    required this.inputScreen,
+    required this.inputReal,
+  });
 
   final Boton boton;
-
+  final void Function(String valueScreen, String valueReal) valueChanged;
+  final String inputScreen;
+  final String inputReal;
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -92,12 +110,146 @@ class _BotonCalc extends StatelessWidget {
       child: Material(
         color: boton.color,
         child: InkWell(
-          onTap: () => (),
+          onTap: () {
+            switch (boton.type) {
+              case typeButton.number:
+                if (inputReal == "0") {
+                  valueChanged(boton.valueScreen, boton.value);
+                } else {
+                  valueChanged(
+                    inputScreen + boton.valueScreen,
+                    boton.value + inputReal,
+                  );
+                }
+                break;
+              case typeButton.operator:
+                final List<String> operadores = ["/", "*", "+"];
+
+                print("hola ${inputReal}");
+                print("hola ${boton.value}");
+
+                if (inputReal == "0" && boton.value == "-") {
+                  valueChanged("-", "-");
+                  break;
+                }
+
+                if (inputReal == "-") {
+                  valueChanged("0", "0");
+                  break;
+                }
+
+                if (boton.value == inputReal[inputReal.length - 1]) {
+                  break;
+                }
+
+                final String lastChar = inputReal[inputReal.length - 1];
+                if (inputReal.length > 2) {
+                  print("penultimo : ${inputReal[inputReal.length - 2]}");
+
+                  print("ultimo : ${lastChar}");
+
+                  if (operadores.contains(inputReal[inputReal.length - 2]) &&
+                      lastChar == "-") {
+                    print(
+                      "desde aqui ${inputReal.substring(0, inputReal.length - 2)}",
+                    );
+                    valueChanged(
+                      inputScreen.substring(0, inputScreen.length - 2) +
+                          boton.valueScreen,
+                      inputReal.substring(0, inputReal.length - 2) +
+                          boton.value,
+                    );
+                    break;
+                  }
+                }
+
+                if (lastChar == "-" && operadores.contains(boton.value)) {
+                  valueChanged(
+                    inputScreen.substring(0, inputScreen.length - 1) +
+                        boton.valueScreen,
+                    inputReal.substring(0, inputReal.length - 1) + boton.value,
+                  );
+                  break;
+                }
+
+                if (boton.value == "-") {
+                  if (lastChar == "/" || lastChar == "*") {
+                    valueChanged(
+                      inputScreen + boton.valueScreen,
+                      inputReal + boton.value,
+                    );
+                    break;
+                  }
+                  if (lastChar == "+") {
+                    valueChanged(
+                      inputScreen.substring(0, inputScreen.length - 1) +
+                          boton.valueScreen,
+                      inputReal.substring(0, inputReal.length - 1) +
+                          boton.value,
+                    );
+                    break;
+                  }
+                }
+
+                if (boton.value == "+" && lastChar == "-") {
+                  valueChanged(
+                    inputScreen.substring(0, inputScreen.length - 1) +
+                        boton.valueScreen,
+                    inputReal.substring(0, inputReal.length - 1) + boton.value,
+                  );
+                  break;
+                }
+
+                if (operadores.contains(boton.value) &&
+                    operadores.contains(lastChar)) {
+                  valueChanged(
+                    inputScreen.substring(0, inputScreen.length - 1) +
+                        boton.valueScreen,
+                    inputReal.substring(0, inputReal.length - 1) + boton.value,
+                  );
+                  break;
+                }
+
+                valueChanged(
+                  inputScreen + boton.valueScreen,
+                  inputReal + boton.value,
+                );
+
+                break;
+
+              case typeButton.action:
+                if (boton.value == "reset") {
+                  valueChanged("0", "0");
+                  break;
+                }
+
+                if (boton.value == "sprm") {
+                  if (inputReal.length == 1) {
+                    valueChanged("0", "0");
+                    break;
+                  }
+
+                  final String nuevoInputScreen = inputScreen.substring(
+                    0,
+                    inputScreen.length - 1,
+                  );
+                  final String nuevoInputReal = inputReal.substring(
+                    0,
+                    inputReal.length - 1,
+                  );
+                  valueChanged(nuevoInputScreen, nuevoInputReal);
+                  break;
+                }
+
+              default:
+                break;
+            }
+          },
           splashColor: Colors.black12,
           child: Center(
             child: boton.iconData == null
                 ? Text(
-                    boton.value,
+                    boton.valueScreen,
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
                   )
                 : Icon(boton.iconData),

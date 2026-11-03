@@ -1,17 +1,40 @@
-import 'package:calculadora_kitty/screen_main.dart';
+import 'package:calculadora_kitty/config/preferences.dart';
+import 'package:calculadora_kitty/config/theme/app_theme.dart';
+import 'package:calculadora_kitty/providers/settinsApp.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'config/router/app_router.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
+  final anyPreferTheme = await loadThemePreferences();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        settingsProvider.overrideWithBuild(
+          (_, _) => Settings(isDarkMode: anyPreferTheme),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
+}
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    bool BrightnessMode = ref.watch(settingsProvider).isDarkMode;
+
+    return MaterialApp.router(
+      routerConfig: appRouter,
       title: 'Calculadora Kitty',
+      theme: BrightnessMode ? AppTheme.dark : AppTheme.light,
       debugShowCheckedModeBanner: false,
-      home: ScreenMain(),
     );
   }
 }
+

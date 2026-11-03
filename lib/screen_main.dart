@@ -1,6 +1,8 @@
 import 'package:calculadora_kitty/botones.dart';
 import 'package:calculadora_kitty/calculadora_logica.dart';
+import 'package:calculadora_kitty/helpers/sfx.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ScreenMain extends StatefulWidget {
   const ScreenMain({super.key});
@@ -17,79 +19,126 @@ class _ScreenMainState extends State<ScreenMain> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/backgrounds/clean_native/bg_light.png"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Column(
-          children: [
-            SizedBox(height: 100),
-            Container(
-              height: 140,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/mascot/hello_kitty.png'),
-                ),
+      body: SafeArea(
+        bottom: false,
+        child: Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                Theme.of(context).brightness == Brightness.light
+                    ? "assets/backgrounds/clean_native/bg_light.png"
+                    : "assets/backgrounds/clean_native/bg_dark.png",
               ),
+              opacity: Theme.of(context).brightness == Brightness.dark
+                  ? 0.25
+                  : 1,
+              fit: BoxFit.cover,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.pink.shade100,
-                  border: BoxBorder.all(color: Colors.pink),
-                ),
-                height: 90,
-                width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      inputScreen,
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 10,
+                left: 90,
+                child: Image.asset("assets/mascot/hello_kitty.png"),
+              ),
+
+              Column(
+                children: [
+                  Row(
+                    spacing: 0,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () => context.push("/config"),
+                        icon: Icon(
+                          Icons.settings_sharp,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 35,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.pink.shade100
+                            : Theme.of(context).colorScheme.surface,
+                        border: BoxBorder.all(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
+                      height: 90,
+                      width: double.infinity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            inputScreen,
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 4,
-                shrinkWrap: true,
-                padding: EdgeInsets.symmetric(vertical: 30, horizontal: 10),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                children: [
-                  ...botones.map(
-                    (btn) => _BotonCalc(
-                      boton: btn,
-                      operacionPreviaHecha: opreacionPreviaHecha,
-                      inputScreen: inputScreen,
-                      inputReal: inputReal,
-                      valueChanged:
-                          (valueScreen, valueReal, [opreacionHechaPreviaa]) =>
-                              (setState(() {
+                  ),
+                  GridView.count(
+                    crossAxisCount: 4,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    children: [
+                      ...botones.map(
+                        (btn) => _BotonCalc(
+                          boton: btn,
+                          operacionPreviaHecha: opreacionPreviaHecha,
+                          inputScreen: inputScreen,
+                          inputReal: inputReal,
+                          valueChanged:
+                              (
+                                valueScreen,
+                                valueReal, [
+                                opreacionHechaPreviaa,
+                              ]) => (setState(() {
                                 inputScreen = valueScreen;
                                 inputReal = valueReal;
                                 opreacionPreviaHecha =
                                     opreacionHechaPreviaa ?? false;
                               })),
-                    ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(width: MediaQuery.of(context).size.width / 3),
+                      Container(color: Colors.pink, height: 2, width: 50),
+                      Center(
+                        child: Image.asset(
+                          "assets/decor/bow_outline.png",
+                          width: 50,
+                          height: 50,
+                        ),
+                      ),
+
+                      Container(color: Colors.pink, height: 3, width: 50),
+                    ],
                   ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -118,13 +167,14 @@ class _BotonCalc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadiusGeometry.circular(20),
+      borderRadius: BorderRadiusGeometry.circular(50),
       child: Material(
-        color: boton.color,
+        color: boton.getColor(context),
         child: InkWell(
           onTap: () {
             switch (boton.type) {
               case typeButton.number:
+                Sfx.tap();
                 if (inputReal == "0") {
                   valueChanged(boton.valueScreen, boton.value);
                 } else {
@@ -137,8 +187,10 @@ class _BotonCalc extends StatelessWidget {
                     inputReal + boton.value,
                   );
                 }
+
                 break;
               case typeButton.operator:
+                Sfx.operator();
                 final List<String> operadores = ["/", "*", "+"];
 
                 if (inputReal == "0" && boton.value == "-") {
@@ -225,6 +277,7 @@ class _BotonCalc extends StatelessWidget {
 
               case typeButton.action:
                 if (boton.value == "not") {
+                  Sfx.tap();
                   if (inputReal == "0") {
                     break;
                   }
@@ -352,6 +405,7 @@ class _BotonCalc extends StatelessWidget {
                 }
 
                 if (boton.value == "=") {
+                  Sfx.tap();
                   print("input a mandar : ${inputReal}");
                   final double res = CalculadoraLogica.obtenerResultado(
                     inputReal,
@@ -362,6 +416,7 @@ class _BotonCalc extends StatelessWidget {
                 }
 
                 if (boton.value == "sprm") {
+                  Sfx.delete();
                   if (inputReal.length == 1) {
                     valueChanged("0", "0");
                     break;
@@ -388,7 +443,13 @@ class _BotonCalc extends StatelessWidget {
             child: boton.iconData == null
                 ? Text(
                     boton.valueScreen,
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.black
+                          : Colors.white,
+                    ),
                   )
                 : Icon(boton.iconData),
           ),

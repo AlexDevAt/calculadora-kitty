@@ -1,16 +1,24 @@
 import 'package:audioplayers/audioplayers.dart';
 
+enum TypeSound {
+  Tap("tap"),
+  Delete("delete"),
+  Operator("operator"),
+  Error("error");
+
+  final String label;
+
+  const TypeSound(this.label);
+}
+
 class Sfx {
-  static final audioPlayer = AudioPlayer()
-    ..setPlayerMode(PlayerMode.lowLatency);
+  final audioPlayer = AudioPlayer()..setPlayerMode(PlayerMode.lowLatency);
 
-  static Future<void> play(String name) async {
+  Future<void> play(TypeSound type) async {
     await audioPlayer.stop();
-    await audioPlayer.play(AssetSource("sounds/${name}.wav"), volume: 0.7);
+    await audioPlayer.play(
+      AssetSource("sounds/${type.label}.wav"),
+      volume: 0.7,
+    );
   }
-
-  static void tap() => play("tap");
-  static void delete() => play("delete");
-  static void operator() => play("operator");
-  static void error() => play("error");
 }

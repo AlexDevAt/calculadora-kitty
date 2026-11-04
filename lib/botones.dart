@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum typeButton { number, equal, operator, action }
+enum typeButton { number, equal, operator, action, porcent }
 
 class Boton {
   final String valueScreen;
@@ -22,7 +22,7 @@ class Boton {
       case typeButton.number:
         return isDark ? const Color(0xFF463544) : Colors.pink.shade100;
 
-      case typeButton.operator:
+      case typeButton.operator || typeButton.porcent:
         return isDark ? const Color(0xFFC9517C) : Colors.pink.shade400;
 
       case typeButton.equal:
@@ -42,7 +42,7 @@ final List<Boton> botones = [
     value: "sprm",
   ),
   Boton(valueScreen: 'AC', type: typeButton.action, value: "reset"),
-  Boton(valueScreen: '%', type: typeButton.action, value: "%"),
+  Boton(valueScreen: '%', type: typeButton.porcent, value: "%"),
   Boton(valueScreen: '÷', type: typeButton.operator, value: "/"),
   Boton(valueScreen: '7', type: typeButton.number, value: "7"),
   Boton(valueScreen: '8', type: typeButton.number, value: "8"),

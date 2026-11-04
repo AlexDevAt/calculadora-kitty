@@ -17,6 +17,12 @@ class ArbolBinario {
     final Queue<Node> pilaNodos = Queue();
     const List<String> operadores = ["+", "-", "*", "/"];
     for (String char in inputPostFijo) {
+      if (char == "%") {
+        final hijo = pilaNodos.removeLast();
+        final Node nodoPorcent = Node(children: "%", left: hijo, rigth: null);
+        pilaNodos.add(nodoPorcent);
+        continue;
+      }
       if (!operadores.contains(char)) {
         final Node nuevoNodo = Node(children: char, left: null, rigth: null);
         pilaNodos.add(nuevoNodo);
@@ -39,15 +45,25 @@ class ArbolBinario {
     if (nodo.left == null && nodo.rigth == null) {
       return double.parse(nodo.children);
     }
+    if (nodo.children == "%") {
+      return double.parse(nodo.left!.children) / 100;
+    }
 
     double izq = evaluarExpresion(nodo.left!);
     double der = evaluarExpresion(nodo.rigth!);
 
     switch (nodo.children) {
       case "+":
+        if (nodo.rigth?.children == "%") {
+          return izq + (izq * der);
+        }
         return izq + der;
 
       case "-":
+        if (nodo.rigth?.children == "%") {
+          return izq - (izq * der);
+        }
+
         return izq - der;
 
       case "*":
@@ -58,7 +74,6 @@ class ArbolBinario {
           throw Exception("No se puede dividir entre cero");
         }
         return izq / der;
-
       default:
         throw Exception("Operador desconocido: ${nodo.children}");
     }
@@ -70,7 +85,7 @@ class CalculadoraLogica {
     final List<String> tokens = [];
     String actual = "";
 
-    const List<String> operadores = ["+", "-", "/", "*"];
+    const List<String> operadores = ["+", "-", "/", "*", "%"];
 
     for (String char in input.split('')) {
       if (operadores.contains(char)) {
@@ -85,8 +100,9 @@ class CalculadoraLogica {
         actual += char;
       }
     }
-    tokens.add(actual);
-
+    if (actual != "") {
+      tokens.add(actual);
+    }
     return tokens;
   }
 
@@ -94,9 +110,9 @@ class CalculadoraLogica {
     Queue<String> pilaOp = Queue();
     Queue<String> colaNumeros = Queue();
 
-    Map<String, int> jerarquiaOp = {"+": 1, "-": 1, "/": 2, "*": 2};
+    Map<String, int> jerarquiaOp = {"+": 1, "-": 1, "/": 2, "*": 2, "%": 3};
 
-    const List<String> operadores = ["+", "-", "/", "*"];
+    const List<String> operadores = ["+", "-", "/", "*", "%"];
 
     for (var token in tokens) {
       if (operadores.contains(token)) {

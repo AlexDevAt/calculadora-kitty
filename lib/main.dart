@@ -7,14 +7,14 @@ import 'config/router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   final anyPreferTheme = await loadThemePreferences();
-
+  final bool enableSound = await loadSoundPreferences();
   runApp(
     ProviderScope(
       overrides: [
         settingsProvider.overrideWithBuild(
-          (_, _) => Settings(isDarkMode: anyPreferTheme),
+          (_, _) =>
+              Settings(isDarkMode: anyPreferTheme, soundEnable: enableSound),
         ),
       ],
       child: MyApp(),
@@ -37,4 +37,3 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-

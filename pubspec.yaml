@@ -38,12 +38,13 @@ dependencies:
   flutter_riverpod: ^3.4.3
   go_router: ^18.1.2
   shared_preferences: ^2.5.6
+  auto_size_text: ^3.0.0
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.1
-
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -56,7 +57,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/app_icon.png"
+  image_path: "assets/icon/icon2.png"
   remove_alpha_ios: true
 # The following section is specific to Flutter packages.
 flutter:
@@ -72,8 +73,7 @@ flutter:
     - assets/backgrounds/clean_native/
     - assets/mascot/
     - assets/decor/
-    - assets/buttons/
-    - assets/ui/
+    - assets/icon/
     - assets/extras/
     - assets/sounds/
 

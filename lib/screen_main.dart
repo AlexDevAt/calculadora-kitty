@@ -1,7 +1,10 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:calculadora_kitty/botones.dart';
 import 'package:calculadora_kitty/calculadora_logica.dart';
 import 'package:calculadora_kitty/helpers/sfx.dart';
+import 'package:calculadora_kitty/providers/sound_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ScreenMain extends StatefulWidget {
@@ -42,7 +45,9 @@ class _ScreenMainState extends State<ScreenMain> {
               Positioned(
                 top: 10,
                 left: 90,
-                child: Image.asset("assets/mascot/hello_kitty.png"),
+                child: !opreacionPreviaHecha
+                    ? Image.asset("assets/mascot/hello_kitty.png")
+                    : Image.asset("assets/mascot/hello_kitty_cerr.png"),
               ),
 
               Column(
@@ -63,7 +68,7 @@ class _ScreenMainState extends State<ScreenMain> {
                   ),
                   Spacer(),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
@@ -80,11 +85,15 @@ class _ScreenMainState extends State<ScreenMain> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            inputScreen,
-                            style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.w700,
+                          Flexible(
+                            child: AutoSizeText(
+                              inputScreen,
+                              minFontSize: 2,
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ],
@@ -145,7 +154,7 @@ class _ScreenMainState extends State<ScreenMain> {
   }
 }
 
-class _BotonCalc extends StatelessWidget {
+class _BotonCalc extends ConsumerWidget {
   const _BotonCalc({
     required this.boton,
     required this.valueChanged,
@@ -165,7 +174,7 @@ class _BotonCalc extends StatelessWidget {
   final String inputReal;
   final bool operacionPreviaHecha;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ClipRRect(
       borderRadius: BorderRadiusGeometry.circular(50),
       child: Material(
@@ -174,7 +183,7 @@ class _BotonCalc extends StatelessWidget {
           onTap: () {
             switch (boton.type) {
               case typeButton.number:
-                Sfx.tap();
+                ref.read(audioProvider).playSound(TypeSound.Tap);
                 if (inputReal == "0") {
                   valueChanged(boton.valueScreen, boton.value);
                 } else {
@@ -190,7 +199,8 @@ class _BotonCalc extends StatelessWidget {
 
                 break;
               case typeButton.operator:
-                Sfx.operator();
+                ref.read(audioProvider).playSound(TypeSound.Operator);
+
                 final List<String> operadores = ["/", "*", "+"];
 
                 if (inputReal == "0" && boton.value == "-") {
@@ -276,8 +286,9 @@ class _BotonCalc extends StatelessWidget {
                 break;
 
               case typeButton.action:
+                ref.read(audioProvider).playSound(TypeSound.Tap);
+
                 if (boton.value == "not") {
-                  Sfx.tap();
                   if (inputReal == "0") {
                     break;
                   }
@@ -405,8 +416,8 @@ class _BotonCalc extends StatelessWidget {
                 }
 
                 if (boton.value == "=") {
-                  Sfx.tap();
-                  print("input a mandar : ${inputReal}");
+                  ref.read(audioProvider).playSound(TypeSound.Tap);
+
                   final double res = CalculadoraLogica.obtenerResultado(
                     inputReal,
                   );
@@ -416,7 +427,8 @@ class _BotonCalc extends StatelessWidget {
                 }
 
                 if (boton.value == "sprm") {
-                  Sfx.delete();
+                  ref.read(audioProvider).playSound(TypeSound.Delete);
+
                   if (inputReal.length == 1) {
                     valueChanged("0", "0");
                     break;
@@ -433,6 +445,22 @@ class _BotonCalc extends StatelessWidget {
                   valueChanged(nuevoInputScreen, nuevoInputReal);
                   break;
                 }
+
+              case typeButton.porcent:
+                const List<String> operators = ["+", "-", "*", "/"];
+                if (operators.contains(inputReal[inputReal.length - 1])) {
+                  valueChanged(
+                    inputScreen.substring(0, inputReal.length - 1) + "%",
+                    inputReal.substring(0, inputReal.length - 1) + "%",
+                  );
+                  break;
+                }
+                if (inputReal[inputReal.length - 1] == "%") {
+                  return;
+                }
+
+                valueChanged(inputScreen + "%", inputReal + "%");
+                break;
 
               default:
                 break;

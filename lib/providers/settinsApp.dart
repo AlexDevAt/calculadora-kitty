@@ -21,6 +21,14 @@ class SettingsAppNotifier extends Notifier<Settings> {
     );
     saveThemePreferences(state.isDarkMode);
   }
+
+  void changeSoundMode() {
+    state = Settings(
+      isDarkMode: state.isDarkMode,
+      soundEnable: !state.soundEnable,
+    );
+    saveSoundPreferences(state.soundEnable);
+  }
 }
 
 final settingsProvider = NotifierProvider<SettingsAppNotifier, Settings>(
